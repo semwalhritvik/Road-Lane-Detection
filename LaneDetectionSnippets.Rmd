@@ -1,0 +1,67 @@
+```{r}
+
+library(opencv)
+library(ggplot2)
+library(magrittr)
+library(imager)
+
+```
+```{r}
+
+canny_edge_detector <- function(image) {
+  
+    gray_image = ocv_grayscale(image)
+    blur = ocv_blur(gray_image,5)
+    ocv_write(blur, 'blur.jpg')
+    img<- load.image('blur.jpg')
+    canny = cannyEdges(img)
+    canny
+    
+}
+
+```
+```{r}
+
+region_of_interest <- function(image){
+ #px <- (Xc(img2) %inr% c(10,1900)) & (Yc(img2) %inr% c(600,1070))
+ #plot(img2)
+ #highlight(px)
+  cropped<-imsub(image,x %inr% c(10,1900),y %inr% c(600,1070))
+  cropped
+  
+}
+
+```
+```{r}
+
+rdimg = ocv_read('Road3.png')
+rdimg
+
+cannyimg<- canny_edge_detector(rdimg)
+plot(cannyimg)
+
+croppedimg<- region_of_interest(cannyimg)
+plot(croppedimg)
+
+df <- hough_line(croppedimg,ntheta=50,data.frame=TRUE)
+#Plot lines with the highest score
+plot(croppedimg)
+with(subset(df,score > quantile(score,.999)),nfline(theta,rho,col="blue"))
+
+```
+```{r}
+
+library(reticulate)
+path_to_python <- "E:/Python/Python36/python.exe"
+use_python(path_to_python)
+#py_install("matplotlib", pip = TRUE)
+#py_module_available("matplotlib")
+cv <- import("cv2")
+plt <- import("matplotlib.pyplot")
+source_python("RoadLaneDetection.py")
+
+```
+
+
+
+
